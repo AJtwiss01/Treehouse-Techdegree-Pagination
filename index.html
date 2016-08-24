@@ -6,6 +6,8 @@
     <title>Students</title>
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/design.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
   </head>
   <body>
     <div class="page">
@@ -554,7 +556,66 @@
            </div>
         </li>
       </ul>
+       <div class="pagination">
+        <ul>
+          <li>
+            <a class="active" href="#">1</a>
+          </li>
+           <li>
+            <a href="#">2</a>
+          </li>
+           <li>
+            <a href="#">3</a>
+          </li>
+           <li>
+            <a href="#">4</a>
+          </li>
+           <li>
+            <a href="#">5</a>
+          </li>
+        </ul>
+      </div>
     </div>
+        <script>
+      function check_navigation_display(el) {
+    //accepts a jQuery object of the containing div as a parameter
+    if ($(el).find('ul').children('li').first().is(':visible')) {
+        $(el).children('.prev').hide();
+    } else {
+        $(el).children('.prev').show();
+    }
+    
+    if ($(el).find('ul').children('li').last().is(':visible')) {
+        $(el).children('.next').hide();
+    } else {
+        $(el).children('.next').show();
+    }    
+    console.log(el);
+}
+
+$('div').each(function () {
+  console.log(this);
+    $(this).append('<a class="prev">prev</a> | <a class="next">next</a>');
+    $(this).find('ul li:gt(4)').hide();
+
+    check_navigation_display($(this));
+    
+    $(this).find('.next').click(function () {
+        var last = $(this).siblings('ul').children('li:visible:last');
+        last.nextAll(':lt(5)').show();
+        last.next().prevAll().hide();
+        check_navigation_display($(this).closest('div'));
+    });
+
+    $(this).find('.prev').click(function () {
+        var first = $(this).siblings('ul').children('li:visible:first');
+        first.prevAll(':lt(5)').show();
+        first.prev().nextAll().hide()
+        check_navigation_display($(this).closest('div'));
+    });
+
+});
+    </script>
   </body>
 </html>
 
