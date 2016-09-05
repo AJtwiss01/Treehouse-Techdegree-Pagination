@@ -12,8 +12,14 @@
 
 <body>
     <div class="page">
+        <input type='hidden' id='current_page' />
+        <input type='hidden' id='show_per_page' />
         <div class="page-header cf">
             <h2>Students</h2>
+            <div class="student-search">
+                <input class="live-search-box" placeholder="Search for students...">
+                <button>Search</button>
+            </div>
         </div>
         <ul class="student-list">
             <li class="student-item cf">
@@ -581,80 +587,114 @@
         </div>
     </div>
     <script>
-    function check_navigation_display(el) {
-        //accepts a jQuery object of the containing div as a parameter
-        if ($(el).find('ul').children('li').first().is(':visible')) {
-            // console.log(el);
-            $(el).children('.prev').hide();
-        } else {
-            $(el).children('.prev').show();
+    $(document).ready(function() {
+
+        //how much items per page to show
+        var show_per_page = 10;
+        //getting the amount of elements inside content div
+        var number_of_items = $('.student-list').children().size();
+        //calculate the number of pages we are going to have
+        var number_of_pages = Math.ceil(number_of_items / show_per_page);
+
+
+        //set the value of our hidden input fields
+        $('#current_page').val(0);
+        $('#show_per_page').val(show_per_page);
+
+        //now when we got all we need for the navigation let's make it '
+        /*
+        what are we going to have in the navigation?
+            - link to previous page
+            - links to specific pages
+            - link to next page
+        */
+        var navigation_html = '';
+        var current_link = 0;
+        while (number_of_pages > current_link) {
+            navigation_html += '<li><a class="page_link" href="javascript:go_to_page(' + current_link + ')" longdesc="' + current_link + '">' + (current_link + 1) + '</a></li>';
+            current_link++;
         }
 
-        if ($(el).find('ul').children('li').last().is(':visible')) {
-            $(el).children('.next').hide();
-        } else {
-            $(el).children('.next').show();
-        }
 
-    }
-    $('div').each(function() {
+        $('.pagination ul').html(navigation_html);
 
-        var $one = $('.student-list').find('li').slice(0, 10).addClass('first');
-        var $two = $('.student-list').find('li').slice(10, 20).addClass('second');
-        var $three = $('.student-list').find('li').slice(20, 30).addClass('third');
-        var $four = $('.student-list').find('li').slice(30, 40).addClass('fourth');
-        var $five = $('.student-list').find('li').slice(40, 50).addClass('fifth');
-        var $six = $('.student-list').find('li').slice(50, 60).addClass('six');
+        //add active_page class to the first page link
+        $('.pagination ul a:first').addClass('active');
 
-        $one
-        $two
-        $three
-        $four
-        $five
-        $six
-        $('.second, .third, .fourth, .fifth, .six').hide();
-        // console.log(this);
-        $('.pagination >ul > li').on('click', function(e) {
-            console.log(this);
-            if ($(this).children(':contains(1)')) {
-                console.log('1');
-                $('li').has('.active').removeClass('active');
-                $('.second, .fourth, .third, .fourth, .fifth, .six').hide();
-                $('.first').show();
-                $('.first').addClass('active');
-            };
-            if ($(this).children('li > a:contains(2)')) {
-                console.log('2');
-                $('li').has('.active').removeClass('active');
-                $('.first, .third, .fourth, .fifth, .six').hide();
-                $('.second').show();
-                $('.second').addClass('active');
-            };
+        //hide all the elements inside content div
+        $('.student-list').children().css('display', 'none');
+
+        //and show the first n (show_per_page) elements
+        $('.student-list').children().slice(0, show_per_page).css('display', 'block');
+
+
+        $('.live-search-box').on('keyup', function() {
+
+            var searchTerm = $(this).val().toLowerCase();
+
+
+            $('.student-item .student-details').each(function() {
+
+                $(this).find('h3:not(:contains(' + searchTerm + '))').parent().parent().hide();
+                $(this).find("h3:contains(" + searchTerm + ")").parent().parent().show();
+
+            });
         });
-        // $(this).find('.pagination').append('<li class="prev"><a href="#">1</a></li><li class="next"><a href="#">2</a></li>');
-        // $(this).find('ul li:gt(5)').hide();
-        // check_navigation_display($(this));
-
-        // $(this).parent().parent().find('.next').click(function() {
-        //   console.log("next");
-        //     var last = $(this).parent().parent().find('.student-list').children('li:visible:last');
-        //     console.log(this);
-        //     last.nextAll(':lt(5)').show();
-        //     last.next().prevAll().hide();
-        //     check_navigation_display($(this).closest('div'));
-        // });
-
-        // $(this).parent().parent().find('.prev').click(function() {
-        //             console.log("prev");
-
-        //     var first = $(this).parent().parent().find('.student-list').children('li:visible:first');
-        //     console.log(this);
-        //     first.prevAll(':lt(7)').show();
-        //     first.prev().nextAll().hide()
-        //     check_navigation_display($(this).closest('div'));
-        // });
 
     });
+
+
+    function go_to_page(page_num) {
+        //get the number of items shown per page
+        var show_per_page = parseInt($('#show_per_page').val());
+
+        //get the element number where to start the slice from
+        start_from = page_num * show_per_page;
+
+        //get the element number where to end the slice
+        end_on = start_from + show_per_page;
+
+        //hide all children elements of content div, get specific items and show them
+        $('.student-list').children().css('display', 'none').slice(start_from, end_on).css('display', 'block');
+
+        /*get the page link that has longdesc attribute of the current page and add active_page class to it
+
+        and remove that class from previously active page link*/
+        // console.log(page_num);
+        var remActive = $('li').find('a').removeClass('active');
+        var addActive = $('.page_link[longdesc=' + page_num + ']').addClass('active');
+        if (page_num === 0) {
+
+            console.log(page_num);
+            remActive
+            addActive
+        } else if (page_num === 1) {
+            console.log(page_num);
+            remActive
+            addActive
+        } else if (page_num === 2) {
+            console.log(page_num);
+            remActive
+            addActive
+        } else if (page_num === 3) {
+            console.log(page_num);
+            remActive
+            addActive
+        } else if (page_num === 4) {
+            console.log(page_num);
+            remActive
+            addActive
+        } else if (page_num === 5) {
+            console.log(page_num);
+            remActive
+            addActive
+        }
+
+        //update the current page input field
+        $('#current_page').val(page_num);
+    }
+
+    // });
     </script>
 </body>
 
